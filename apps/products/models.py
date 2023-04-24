@@ -6,6 +6,7 @@ from apps.categories.models import Category
 
 
 class ImageProduct(models.Model):
+    title = models.CharField(max_length=10, null=True, blank=True)
     image = models.ImageField(upload_to='product/')
 
 
@@ -16,7 +17,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    images = models.ManyToManyField(ImageProduct)
+    images = models.ManyToManyField(ImageProduct, related_name='images_product', blank=True)
 
     slug = models.SlugField(unique=True)
     manufacturer = models.ForeignKey(StoreUser, on_delete=models.CASCADE)

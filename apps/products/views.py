@@ -1,5 +1,6 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.validators import ValidationError
 
 from apps.products.serializers import (
     ImageProductSerializer,
@@ -8,7 +9,7 @@ from apps.products.serializers import (
 )
 
 from apps.products.models import Product
-from apps.products.permissions import IsManufacturer
+from apps.products.permissions import IsManufacturer, IsUserWho
 
 
 class ProductListView(generics.ListAPIView):
@@ -20,16 +21,20 @@ class ProductListView(generics.ListAPIView):
 class ProductDetailUpdateView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    
-    def get_permissions(self):
-        if self.request.method in ('PUT', 'DELETE', "UPDATE"):
-            return IsManufacturer
-        else:
-            return IsAuthenticatedOrReadOnly
-
+    permission_classes = [IsManufacturer]
 
 
 class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsUserWho]
+
+    def perform_create(self, serializer):
+        serializer.save(manufacturer=self.request.user)
+        return serializer
+    
+    def get_permissions(self):
+        if self.request.user.user_who == "ПОКУПАТЕЛЬ":
+            raise ValidationError("Ты не продавец")
+        else:
+            return [IsAuthenticated()]

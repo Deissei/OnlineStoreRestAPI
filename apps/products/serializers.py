@@ -10,11 +10,12 @@ class ImageProductSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ImageProductSerializer(many=True)
+    # images = ImageProductSerializer(many=True)
 
     class Meta:
         model = Product
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ('manufacturer', )
 
 
 class ProductListSerializer(serializers.ModelSerializer):
